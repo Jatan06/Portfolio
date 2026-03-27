@@ -14,9 +14,29 @@ import Footer from "./sections/Footer";
  * Renders the global styles, background, scanline, navigation, and all sections.
  */
 export default function Portfolio() {
-  // ── Vault intro (shown once per session) ────────────────────────────────────
-  const [showVault] = useState(() => !sessionStorage.getItem("jp_vault_seen"));
+  // ── Vault intro (shown once per session or forcefully on Ctrl+Shift+R) ──────
+  const [showVault] = useState(() => {
+    const forceRender = sessionStorage.getItem("jp_force_vault") === "true";
+    if (forceRender) {
+       sessionStorage.removeItem("jp_force_vault");
+       return true;
+    }
+    return !sessionStorage.getItem("jp_vault_seen");
+  });
   const handleVaultComplete = () => sessionStorage.setItem("jp_vault_seen", "1");
+
+  // ── Browser Refresh Key Interception ─────────────────────────────────────────
+  useEffect(() => {
+    const handleKeyDown = (e) => {
+      // Detect Ctrl+Shift+R, Cmd+Shift+R, or Ctrl+F5 (Hard Reloads)
+      const isHardReload = ((e.ctrlKey || e.metaKey) && e.shiftKey && e.key.toLowerCase() === 'r') || (e.ctrlKey && e.key === 'F5');
+      if (isHardReload) {
+        sessionStorage.setItem("jp_force_vault", "true");
+      }
+    };
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, []);
 
   // ── Responsive + scroll state ────────────────────────────────────────────────
   const [scrollY,       setScrollY]       = useState(0);

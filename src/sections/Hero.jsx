@@ -2,9 +2,16 @@ import { useState, useEffect } from "react";
 import { ROLES, PARIKH_LANGS } from "../constants";
 import CyclingText from "../components/CyclingText";
 
+const systemNodes = [
+  { id: "About", label: "About", size: 16, orbitSize: 190, speed: 12, startDelay: Math.random() * 12 },
+  { id: "Projects", label: "Projects", size: 20, orbitSize: 290, speed: 18, startDelay: Math.random() * 18 },
+  { id: "Skills", label: "Skills", size: 24, orbitSize: 390, speed: 25, startDelay: Math.random() * 25 },
+  { id: "Contact", label: "Contact", size: 18, orbitSize: 490, speed: 34, startDelay: Math.random() * 34 },
+];
+
 /**
  * Hero section — full-viewport landing area.
- * Contains: animated name, typewriter role text, CTA buttons, profile photo, orbital graphic.
+ * Contains: animated name, typewriter role text, CTA buttons, profile photo, and 3D Interactive Solar System.
  *
  * @prop {boolean} isMobile   - true when viewport < 768px
  * @prop {boolean} showVault  - true on first visit (used to delay scroll-down indicator)
@@ -14,6 +21,11 @@ export default function Hero({ isMobile }) {
   const [roleIdx, setRoleIdx] = useState(0);
   const [charIdx, setCharIdx] = useState(0);
   const [deleting, setDeleting] = useState(false);
+  
+  // Interactive 3D Solar System State
+  const [hoveredOrbit, setHoveredOrbit] = useState(null);
+  const [hoveredSun, setHoveredSun] = useState(false);
+  const [hoveredProfile, setHoveredProfile] = useState(false);
 
   // ── Typewriter effect ────────────────────────────────────────────────────────
   useEffect(() => {
@@ -50,9 +62,25 @@ export default function Hero({ isMobile }) {
         alignItems: isMobile ? "flex-start" : "center",
         justifyContent: isMobile ? "center" : "flex-start",
         padding: isMobile ? "120px 24px" : "0 80px",
-        position: "relative", zIndex: 2,
+        position: "relative", zIndex: 2, overflow: "hidden",
       }}
     >
+      <style>
+        {`
+          /* Direct translation 3D orbital mechanics.
+             This fully decouples the planet from the rotating visual track.
+             1. rotateZ moves the axis of translation
+             2. translateX pushes it precisely to its orbital radius natively
+             3. rotateZ inverse snaps the planet completely back to square
+             4. rotateX(-60deg) tilts it perfectly toward the camera lens to undo the system tilt!
+          */
+          @keyframes dynamic-orbit-ccw {
+            from { transform: rotateZ(0deg) translateX(var(--orbit-radius)) rotateZ(0deg) rotateX(-60deg); }
+            to { transform: rotateZ(-360deg) translateX(var(--orbit-radius)) rotateZ(360deg) rotateX(-60deg); }
+          }
+        `}
+      </style>
+
       {/* Corner accents (desktop only) */}
       {!isMobile && (
         <>
@@ -135,27 +163,33 @@ export default function Hero({ isMobile }) {
         </div>
       </div>
 
-      {/* Right: profile photo + orbital graphic */}
+      {/* Right Column: Stacked Profile Photo and 3D Solar System */}
       <div style={{
         position: isMobile ? "relative" : "absolute",
         right: isMobile ? "auto" : "7%",
-        top: isMobile ? "auto" : "50%",
-        transform: isMobile ? "translateY(0)" : "translateY(-50%)",
-        display: "flex", flexDirection: "column", alignItems: "center",
-        gap: "28px",
+        // Safe bounding: Adjusted center calculation to 199px to account for the collapsed 3D deadspace
+        top: isMobile ? "auto" : "max(140px, calc(50% - 199px))", 
         marginTop: isMobile ? "64px" : "0",
-        pointerEvents: "none",
-        width: isMobile ? "100%" : "auto",
+        display: "flex", flexDirection: "column", alignItems: "center",
+        gap: "8px", width: isMobile ? "100%" : "auto"
       }}>
+        
         {/* Profile Photo */}
-        <div style={{ position: "relative", width: "130px", height: "130px", animation: "float 7s ease-in-out infinite" }}>
-          <div style={{ position: "absolute", inset: "-10px", borderRadius: "50%", border: "1px dashed #39ff1444", animation: "spin-slow 10s linear infinite" }} />
+        <div 
+          onMouseEnter={() => setHoveredProfile(true)}
+          onMouseLeave={() => setHoveredProfile(false)}
+          onClick={() => scrollTo("Home")}
+          style={{ position: "relative", width: "130px", height: "130px", animation: "float 7s ease-in-out infinite", cursor: "pointer" }}
+        >
+          <div style={{ position: "absolute", inset: "-10px", borderRadius: "50%", border: "1px dashed #39ff1444", animation: "spin-slow 10s linear infinite", animationPlayState: hoveredProfile ? "paused" : "running" }} />
           <div style={{ position: "absolute", inset: "-5px", borderRadius: "50%", border: "1px solid #39ff1430", boxShadow: "0 0 16px #39ff1422" }} />
+          
           <div style={{
             width: "130px", height: "130px", borderRadius: "50%", overflow: "hidden",
-            border: "2px solid #39ff1466",
-            animation: "photo-glow 3.5s ease-in-out infinite",
+            border: hoveredProfile ? "2px solid #39ff14" : "2px solid #39ff1466",
+            boxShadow: hoveredProfile ? "0 0 40px #39ff14, 0 0 80px #39ff14aa" : "none",
             background: "#0a0a0a", position: "relative", zIndex: 1,
+            transition: "all 0.3s ease",
           }}>
             <img
               src="/profile.jpg"
@@ -171,17 +205,103 @@ export default function Hero({ isMobile }) {
           <div style={{ position: "absolute", bottom: "-2px", left: "50%", transform: "translateX(-50%)", width: "4px", height: "4px", borderRadius: "50%", background: "#39ff1488" }} />
         </div>
 
-        {/* Orbital graphic */}
-        <div style={{ width: isMobile ? "200px" : "260px", height: isMobile ? "200px" : "260px", animation: "float 7s ease-in-out infinite", animationDelay: "0.5s", position: "relative" }}>
-          <div style={{ position: "absolute", inset: 0, border: "1px solid #39ff1418", borderRadius: "50%", animation: "spin-slow 18s linear infinite" }}>
-            <div style={{ position: "absolute", top: "-4px", left: "50%", transform: "translateX(-50%)", width: "7px", height: "7px", borderRadius: "50%", background: "#39ff14", boxShadow: "0 0 10px #39ff14" }} />
+        {/* 3D Tilted Solar System Navigation */}
+        <div style={{
+          position: "relative",
+          width: isMobile ? "350px" : "520px",
+          height: isMobile ? "350px" : "520px",
+          // The rotateX(60deg) visually squishes the circle into an ellipse exactly half its height,
+          // creating 130px of blank DOM space above and below it. We use negative margins to collapse it visually!
+          marginTop: isMobile ? "-80px" : "-130px",
+          marginBottom: isMobile ? "-80px" : "-130px",
+          display: "flex", alignItems: "center", justifyContent: "center",
+          animation: "fadeUp 1.2s ease both 0.3s",
+          perspective: "1200px" 
+        }}>
+          
+          <div style={{ 
+            position: "relative", width: "100%", height: "100%", 
+            transformStyle: "preserve-3d", 
+            transform: "rotateX(60deg)" // 3D Elliptical plane
+          }}>
+
+            {/* Glowing Green Sun (Centerpiece) */}
+            <div 
+              onMouseEnter={() => setHoveredSun(true)}
+              onMouseLeave={() => setHoveredSun(false)}
+              onClick={() => scrollTo("Home")}
+              style={{
+                position: "absolute", top: "50%", left: "50%",
+                transform: "translate(-50%, -50%) rotateX(-60deg)", // Reverts 3D tilt
+                width: "52px", height: "52px",
+                borderRadius: "50%", cursor: "pointer",
+                background: "#39ff14",
+                boxShadow: hoveredSun ? "0 0 40px #39ff14, 0 0 80px #39ff14aa" : "0 0 20px #39ff14, 0 0 40px #39ff1444",
+                transition: "box-shadow 0.3s ease", zIndex: 10,
+              }}
+            />
+
+            {/* Planetary Orbits and Nodes */}
+            {systemNodes.map((node) => {
+              const isHovered = hoveredOrbit === node.id;
+              const isPaused = hoveredSun || isHovered;
+              const currentOrbitSize = isMobile ? node.orbitSize * 0.7 : node.orbitSize;
+              const radius = currentOrbitSize / 2;
+
+              return (
+                <div key={node.id} style={{ position: "absolute", top: 0, left: 0, width: "100%", height: "100%", pointerEvents: "none", transformStyle: "preserve-3d" }}>
+                  
+                  {/* Static Elliptical Orbit Line */}
+                  <div style={{
+                    position: "absolute", top: "50%", left: "50%",
+                    transform: "translate(-50%, -50%)",
+                    width: `${currentOrbitSize}px`, height: `${currentOrbitSize}px`,
+                    borderRadius: "50%",
+                    border: isHovered ? "1px dashed rgba(57, 255, 20, 0.6)" : "1px dashed rgba(57, 255, 20, 0.15)",
+                    transition: "border-color 0.4s",
+                  }} />
+
+                  {/* Dynamic Non-Nested Planet */}
+                  <div 
+                    onMouseEnter={() => setHoveredOrbit(node.id)}
+                    onMouseLeave={() => setHoveredOrbit(null)}
+                    onClick={() => scrollTo(node.id)}
+                    style={{
+                      position: "absolute",
+                      top: "50%", left: "50%",
+                      /* Precise centering calibration */
+                      marginTop: `-${node.size / 2}px`, marginLeft: `-${node.size / 2}px`,
+                      width: `${node.size}px`, height: `${node.size}px`,
+                      borderRadius: "50%", background: "#39ff14",
+                      boxShadow: isHovered ? "0 0 20px #39ff14, 0 0 40px #39ff14aa" : "0 0 10px #39ff14, 0 0 20px #39ff1466",
+                      cursor: "pointer", pointerEvents: "auto",
+                      "--orbit-radius": `${radius}px`,
+                      animation: `dynamic-orbit-ccw ${node.speed}s linear infinite`,
+                      animationDelay: `-${node.startDelay}s`,
+                      animationPlayState: isPaused ? "paused" : "running",
+                      display: "flex", alignItems: "center", justifyContent: "center",
+                      transition: "box-shadow 0.3s",
+                    }}
+                  >
+                    {/* Floating Upright Hover Label */}
+                    <div style={{
+                      position: "absolute", top: "100%", marginTop: "8px",
+                      color: isHovered ? "#39ff14" : "transparent",
+                      fontFamily: "'Space Mono', monospace", fontSize: "12px", 
+                      textTransform: "uppercase", letterSpacing: "2px", fontWeight: "bold",
+                      opacity: isHovered ? 1 : 0, transition: "opacity 0.2s, color 0.2s",
+                      background: isHovered ? "rgba(5,5,5,0.85)" : "transparent", 
+                      padding: "4px 8px", borderRadius: "4px",
+                      border: isHovered ? "1px solid #39ff1444" : "none",
+                      pointerEvents: "none", whiteSpace: "nowrap",
+                    }}>
+                      {node.label}
+                    </div>
+                  </div>
+                </div>
+              );
+            })}
           </div>
-          <div style={{ position: "absolute", inset: "38px", border: "1px solid #39ff1428", borderRadius: "50%", animation: "spin-slow-rev 12s linear infinite" }}>
-            <div style={{ position: "absolute", bottom: "-4px", left: "50%", transform: "translateX(-50%)", width: "5px", height: "5px", borderRadius: "50%", background: "#39ff1488" }} />
-          </div>
-          <div style={{ position: "absolute", inset: "76px", border: "1px solid #39ff1415", borderRadius: "50%", animation: "spin-slow 8s linear infinite" }} />
-          <div style={{ position: "absolute", inset: "50%", transform: "translate(-50%,-50%)", width: "12px", height: "12px", borderRadius: "50%", background: "#39ff14", boxShadow: "0 0 24px #39ff14, 0 0 48px #39ff1866" }} />
-          <div style={{ position: "absolute", inset: "-20px", background: "radial-gradient(circle, #39ff140d 0%, transparent 70%)", borderRadius: "50%" }} />
         </div>
       </div>
 

@@ -30,6 +30,9 @@ export default function ProjectCard({ p, i }) {
         transitionDelay: `${i * 90}ms`,
         background: hovered ? "#0a0a0a" : "transparent",
         boxShadow: hovered ? "0 0 40px #39ff1410, inset 0 0 20px #39ff1406" : "none",
+        height: "100%",
+        display: "flex",
+        flexDirection: "column",
       }}
     >
       {/* Year badge */}
@@ -54,7 +57,7 @@ export default function ProjectCard({ p, i }) {
       </p>
 
       {/* Tags */}
-      <div style={{ display: "flex", flexWrap: "wrap", gap: "7px" }}>
+      <div style={{ display: "flex", flexWrap: "wrap", gap: "7px", marginTop: "auto" }}>
         {p.tags.map((t) => (
           <span key={t} style={{
             fontFamily: "'Space Mono', monospace",

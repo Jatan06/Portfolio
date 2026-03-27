@@ -66,15 +66,14 @@ export default function VaultIntro({ onComplete, isMobile }) {
 
       {/* TOP PANEL */}
       <div style={{
-        ...panelBase, top: 0, height: "50%",
+        ...panelBase, top: 0, height: "50%", 
         transform: isOpening ? "translateY(-100%)" : "translateY(0)",
-        borderBottom: isOpening ? "none" : "1px solid #39ff1430",
       }}>
         <div style={{ position: "absolute", inset: 0, backgroundImage: "linear-gradient(#39ff14 1px, transparent 1px), linear-gradient(90deg, #39ff14 1px, transparent 1px)", backgroundSize: "64px 64px", opacity: 0.03 }} />
         <div style={{ position: "absolute", left: 0, right: 0, height: "60px", background: "linear-gradient(180deg,transparent,#39ff140a,transparent)", animation: "hud-scan 2s linear infinite", top: 0 }} />
         <div style={{ position: "absolute", top: 20, left: 20, width: 22, height: 22, borderTop: "2px solid #39ff1466", borderLeft: "2px solid #39ff1466", animation: "corner-pulse 2s ease-in-out infinite" }} />
         <div style={{ position: "absolute", top: 20, right: 20, width: 22, height: 22, borderTop: "2px solid #39ff1466", borderRight: "2px solid #39ff1466", animation: "corner-pulse 2s ease-in-out infinite 0.5s" }} />
-        <div style={{ position: "absolute", bottom: 0, left: 0, right: 0, height: "1px", background: "linear-gradient(90deg, transparent, #39ff14, transparent)", boxShadow: "0 0 12px #39ff14" }} />
+        <div style={{ position: "absolute", bottom: "75px", left: 0, right: 0, height: "1px", background: "linear-gradient(90deg, transparent, #39ff14, transparent)", boxShadow: "0 0 12px #39ff14" }} />
         {/* Status dots */}
         <div style={{ position: "absolute", top: 24, right: 60, display: "flex", gap: "8px", alignItems: "center" }}>
           {[0, 1, 2].map((i) => (
@@ -85,15 +84,14 @@ export default function VaultIntro({ onComplete, isMobile }) {
 
       {/* BOTTOM PANEL */}
       <div style={{
-        ...panelBase, bottom: 0, height: "50%",
+        ...panelBase, bottom: 0, height: "50%", 
         transform: isOpening ? "translateY(100%)" : "translateY(0)",
-        borderTop: isOpening ? "none" : "1px solid #39ff1430",
       }}>
         <div style={{ position: "absolute", inset: 0, backgroundImage: "linear-gradient(#39ff14 1px, transparent 1px), linear-gradient(90deg, #39ff14 1px, transparent 1px)", backgroundSize: "64px 64px", opacity: 0.03 }} />
         <div style={{ position: "absolute", left: 0, right: 0, height: "60px", background: "linear-gradient(180deg,transparent,#39ff140a,transparent)", animation: "hud-scan 2.4s linear infinite reverse", bottom: 0 }} />
         <div style={{ position: "absolute", bottom: 20, left: 20, width: 22, height: 22, borderBottom: "2px solid #39ff1466", borderLeft: "2px solid #39ff1466", animation: "corner-pulse 2s ease-in-out infinite 0.25s" }} />
         <div style={{ position: "absolute", bottom: 20, right: 20, width: 22, height: 22, borderBottom: "2px solid #39ff1466", borderRight: "2px solid #39ff1466", animation: "corner-pulse 2s ease-in-out infinite 0.75s" }} />
-        <div style={{ position: "absolute", top: 0, left: 0, right: 0, height: "1px", background: "linear-gradient(90deg, transparent, #39ff14, transparent)", boxShadow: "0 0 12px #39ff14" }} />
+        <div style={{ position: "absolute", top: "75px", left: 0, right: 0, height: "1px", background: "linear-gradient(90deg, transparent, #39ff14, transparent)", boxShadow: "0 0 12px #39ff14" }} />
         <div style={{ position: "absolute", bottom: 22, left: 56, fontFamily: "'Space Mono',monospace", fontSize: "9px", color: "#39ff1444", letterSpacing: "0.2em" }}>SEC::LAYER_01</div>
       </div>
 

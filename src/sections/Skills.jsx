@@ -1,6 +1,6 @@
 import { SKILLS } from "../constants";
 import Reveal from "../components/Reveal";
-import SkillBar from "../components/SkillBar";
+import SkillSphere from "../components/SkillSphere";
 
 /**
  * Skills section — description blurb, tag badges, and animated skill bars.
@@ -52,11 +52,9 @@ export default function Skills({ isMobile }) {
           </Reveal>
         </div>
 
-        {/* Right: skill bars */}
-        <div style={{ paddingTop: isMobile ? "0px" : "64px" }}>
-          {SKILLS.map((s, i) => (
-            <SkillBar key={s.name} name={s.name} level={s.level} delay={i * 80} />
-          ))}
+        {/* Right: 3D Skill Sphere */}
+        <div style={{ paddingTop: isMobile ? "0px" : "64px", display: "flex", justifyContent: "center" }}>
+          <SkillSphere isMobile={isMobile} />
         </div>
       </div>
     </section>

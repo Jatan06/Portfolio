@@ -1,0 +1,72 @@
+/* Existing reset styles */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html, body {
+  width: 100%;
+  height: 100%;
+  background-color: var(--space-black);
+  color: #fff;
+}
+
+:root {
+  --space-black: #050505;
+  --neon-green: #39ff14;
+  --neon-green-dim: #39ff1444;
+  --neon-green-glow: 0 0 20px #39ff14, 0 0 40px #39ff1444;
+  --solar-gold: #fbbf24;
+  --cosmic-teal: #06b6d4;
+  --mars-red: #ef4444;
+  --nebula-purple: #6b21a8;
+}
+
+@keyframes warp-stars {
+  0% { transform: scale(1); opacity: 1; }
+  100% { transform: scale(1.5); opacity: 0; }
+}
+
+@keyframes rocket-thrust {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-6px); }
+}
+
+@keyframes antigravity-float {
+  0% { transform: translate(0, 0); }
+  33% { transform: translate(3px, -8px); }
+  66% { transform: translate(-2px, 5px); }
+  100% { transform: translate(0, 0); }
+}
+
+@keyframes comet-fade {
+  0% { opacity: 1; transform: scale(1); }
+  100% { opacity: 0; transform: scale(0.2); }
+}
+
+@keyframes orbit-satellite {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+@keyframes wiggle {
+  0%, 100% { transform: translateX(0); }
+  25% { transform: translateX(-2px); }
+  75% { transform: translateX(2px); }
+}
+
+@keyframes flame-flicker {
+  0%, 100% { transform: scaleY(1) translateY(0); opacity: 0.8; }
+  50% { transform: scaleY(1.4) translateY(2px); opacity: 1; }
+}
+
+@keyframes rocket-up {
+  0% { transform: translateY(0); opacity: 1; }
+  100% { transform: translateY(-110vh); opacity: 1; }
+}
+
+@keyframes smoke-fade {
+  0% { transform: scale(0.6); opacity: 0.8; }
+  100% { transform: scale(2.5); opacity: 0; }
+}

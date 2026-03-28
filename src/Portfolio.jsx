@@ -1,12 +1,109 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
+import { motion as Motion, useMotionValue, useSpring } from "framer-motion";
 import { NAV_LINKS } from "./constants";
 import VaultIntro from "./components/VaultIntro";
+import ShootingStars from "./components/ShootingStars";
+import RocketCursor from "./components/RocketCursor";
 import Hero from "./sections/Hero";
 import About from "./sections/About";
 import Projects from "./sections/Projects";
 import Skills from "./sections/Skills";
 import Contact from "./sections/Contact";
 import Footer from "./sections/Footer";
+import BlackHoleDivider from "./components/BlackHoleDivider";
+import WarpOverlay from "./components/WarpOverlay";
+import SoundEngine from "./components/SoundEngine";
+import { useWarp } from "./hooks/useWarp";
+
+const MagneticNavLink = ({ n, activeSection, scrollTo }) => {
+  const ref = useRef(null);
+  
+  const x = useMotionValue(0);
+  const y = useMotionValue(0);
+
+  const springConfig = { stiffness: 150, damping: 15 };
+  const springX = useSpring(x, springConfig);
+  const springY = useSpring(y, springConfig);
+
+  const handleMouseMove = (e) => {
+    if (!ref.current) return;
+    const { left, top, width, height } = ref.current.getBoundingClientRect();
+    const centerX = left + width / 2;
+    const centerY = top + height / 2;
+    
+    const distX = e.clientX - centerX;
+    const distY = e.clientY - centerY;
+    const distance = Math.sqrt(distX * distX + distY * distY);
+
+    if (distance < 80) {
+      const scalar = 1 - Math.max(0, distance / 80);
+      x.set(distX * 0.35 * scalar);
+      y.set(distY * 0.35 * scalar);
+    } else {
+      x.set(0);
+      y.set(0);
+    }
+  };
+
+  const handleMouseLeave = () => {
+    x.set(0);
+    y.set(0);
+  };
+
+  const isActive = activeSection === n;
+
+  return (
+    <Motion.button
+      ref={ref}
+      onMouseMove={handleMouseMove}
+      onMouseLeave={handleMouseLeave}
+      onClick={() => scrollTo(n)}
+      style={{
+        background: "none", border: "none", cursor: "pointer",
+        fontFamily: "'Space Mono', monospace", fontSize: "11px",
+        color: isActive ? "#39ff14" : "#444",
+        letterSpacing: "0.1em", textTransform: "uppercase",
+        transition: "color 0.2s", position: "relative", padding: "4px 0",
+        x: springX,
+        y: springY
+      }}
+    >
+      {n}
+      {isActive && (
+        <div style={{ position: "absolute", bottom: 0, left: 0, right: 0, height: "1px", background: "#39ff14", boxShadow: "0 0 8px #39ff14" }} />
+      )}
+      
+      {/* Orbiting dot */}
+      <Motion.div
+        initial={{ opacity: 0 }}
+        animate={{ opacity: isActive ? 1 : 0 }}
+        transition={{ duration: 0.3 }}
+        style={{
+          position: "absolute",
+          top: "50%",
+          left: "50%",
+          width: "32px",
+          height: "32px",
+          marginLeft: "-16px",
+          marginTop: "-16px",
+          animation: "spin-slow 2s linear infinite",
+          pointerEvents: "none",
+        }}
+      >
+        <div style={{
+          position: "absolute",
+          top: "-2px",
+          left: "14px",
+          width: "4px",
+          height: "4px",
+          borderRadius: "50%",
+          background: "#39ff14",
+          boxShadow: "0 0 8px #39ff14"
+        }} />
+      </Motion.div>
+    </Motion.button>
+  );
+};
 
 /**
  * Root portfolio component.
@@ -14,16 +111,22 @@ import Footer from "./sections/Footer";
  * Renders the global styles, background, scanline, navigation, and all sections.
  */
 export default function Portfolio() {
+  const { triggerWarp } = useWarp();
+
   // ── Vault intro (shown once per session or forcefully on Ctrl+Shift+R) ──────
-  const [showVault] = useState(() => {
+  const [showVault, setShowVault] = useState(() => {
     const forceRender = sessionStorage.getItem("jp_force_vault") === "true";
     if (forceRender) {
        sessionStorage.removeItem("jp_force_vault");
        return true;
     }
-    return !sessionStorage.getItem("jp_vault_seen");
+    const seen = sessionStorage.getItem("jp_vault_seen");
+    return !seen;
   });
-  const handleVaultComplete = () => sessionStorage.setItem("jp_vault_seen", "1");
+  const handleVaultComplete = () => {
+    sessionStorage.setItem("jp_vault_seen", "1");
+    setShowVault(false);
+  };
 
   // ── Browser Refresh Key Interception ─────────────────────────────────────────
   useEffect(() => {
@@ -73,7 +176,11 @@ export default function Portfolio() {
 
   const scrollTo = (id) => {
     const el = document.getElementById(id.toLowerCase());
-    if (el) el.scrollIntoView({ behavior: "smooth" });
+    if (el) {
+      triggerWarp(() => {
+        el.scrollIntoView({ behavior: "smooth" });
+      });
+    }
   };
 
   return (
@@ -112,6 +219,8 @@ export default function Portfolio() {
         backgroundSize: "64px 64px", opacity: 0.03,
       }} />
 
+      <ShootingStars />
+
       {/* ── Scanline ────────────────────────────────────────────────────────── */}
       <div style={{
         position: "fixed", left: 0, right: 0, height: "1px",
@@ -148,18 +257,7 @@ export default function Portfolio() {
           /* Desktop nav links */
           <div style={{ display: "flex", gap: "40px" }}>
             {NAV_LINKS.map((n) => (
-              <button key={n} onClick={() => scrollTo(n)} style={{
-                background: "none", border: "none", cursor: "pointer",
-                fontFamily: "'Space Mono', monospace", fontSize: "11px",
-                color: activeSection === n ? "#39ff14" : "#444",
-                letterSpacing: "0.1em", textTransform: "uppercase",
-                transition: "color 0.2s", position: "relative", padding: "4px 0",
-              }}>
-                {n}
-                {activeSection === n && (
-                  <div style={{ position: "absolute", bottom: 0, left: 0, right: 0, height: "1px", background: "#39ff14", boxShadow: "0 0 8px #39ff14" }} />
-                )}
-              </button>
+              <MagneticNavLink key={n} n={n} activeSection={activeSection} scrollTo={scrollTo} />
             ))}
           </div>
         )}
@@ -192,12 +290,16 @@ export default function Portfolio() {
       )}
 
       {/* ── Page sections ───────────────────────────────────────────────────── */}
-      <Hero     isMobile={isMobile} />
+      <Hero     isMobile={isMobile} showVault={showVault} />
       <About    isMobile={isMobile} />
       <Projects isMobile={isMobile} />
+      <BlackHoleDivider />
       <Skills   isMobile={isMobile} />
       <Contact  isMobile={isMobile} />
       <Footer   isMobile={isMobile} />
+      <SoundEngine />
+      <RocketCursor />
+      <WarpOverlay />
     </div>
   );
 }
